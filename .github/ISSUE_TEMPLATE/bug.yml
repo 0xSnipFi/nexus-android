@@ -1,0 +1,24 @@
+name: Report a bug
+description: Describe something that does not work on your device
+title: "[Bug] "
+body:
+  - type: input
+    id: environment
+    attributes:
+      label: App version, Android version and phone model
+      placeholder: "0.4.2, Android 15, Vivo V2321"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include the search query and category if relevant. Do not include private information.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual result
+    validations:
+      required: true

@@ -1,35 +1,64 @@
-# NEXUS for Android
+<p align="center"><img src="docs/media/nexus.svg" alt="NEXUS app logo" width="88"></p>
+<h1 align="center">NEXUS for Android</h1>
+<p align="center">Search movies, anime and cartoons. Keep the original source links and your watchlist on your phone.</p>
+<p align="center">
+  <a href="https://github.com/0xSnipFi/nexus-android/releases/latest/download/NEXUS-debug.apk"><b>Download the Android APK</b></a> ·
+  <a href="https://github.com/0xSnipFi/nexus-android/releases/latest">Release notes &amp; checksum</a> ·
+  <a href="CONTRIBUTING.md">Contribute</a>
+</p>
 
-NEXUS 0.4.2 is a local-first media discovery browser. Search movie, anime and cartoon titles, view available artwork, open original source pages, copy one or all source links, and keep a watchlist on the device.
+## See it on a phone
 
-## Build and run
+| Discover | Find a movie | Find a cartoon |
+| :---: | :---: | :---: |
+| <img src="docs/media/discover.webp" width="215" alt="NEXUS search screen with title field, categories and poster rail"> | <img src="docs/media/movie.webp" width="215" alt="Dune Part Two result with its poster and Warner Bros. source"> | <img src="docs/media/cartoon.webp" width="215" alt="Bluey result with artwork, a watchlist button and the original source link"> |
 
-Install JDK 17, Android SDK Platform 36 and Build Tools 35.0.0. Set ANDROID_HOME or configure sdk.dir in a local.properties file that stays on your machine. From the repository root:
+These are captures from the Android app. Tap a screenshot to inspect it. Result counts and source availability may change.
+
+## Try these searches
+
+- **Movies → Dune Part Two.** The tested search found the 2024 film and its Warner Bros. source page. Use **Copy link** for one URL or **Copy all source links** for a deduplicated list.
+- **Cartoons → Bluey.** Save the 2018 title to **Watchlist**, open the Watchlist tab, then tap the title to visit the original site. This flow was verified on a physical phone.
+- **Anime → Solo Leveling Hindi dub.** The tested search returned seven catalogue matches. A language note identifies a documented dub where available; it does not verify audio playback in your region.
+
+## Install
+
+Download the APK from the link above and open it on Android 10 or newer. If Android asks, allow installation for the app you used to open the file. For a phone connected by USB debugging:
 
 ~~~sh
-./gradlew :domain:test :app:assembleDebug
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb install -r NEXUS-debug.apk
 ~~~
 
-On Windows use gradlew.bat instead of ./gradlew. The debug APK is for development; no signing credentials are included.
+**Current build: 0.4.2 (6), debug-signed.** This is a development APK, not a Play Store release. If Android reports an incompatible signature, an existing installation was signed with another key. Uninstalling removes local watchlist and history, so do not uninstall without saving what you need.
 
-## Source map
+**বাংলায় শুরু করুন:** APK ইনস্টল করে Search-এ নাম লিখুন। ফলের পাশে **Copy link** চাপলে মূল পেজের ঠিকানা কপি হবে। পরে দেখতে **Save to Watchlist** চাপুন।
 
-| Path | Responsibility |
+## What works today
+
+The app searches local title catalogues and supported online listings, groups source links by result, displays available artwork and stores recent searches and saved titles on the phone. No NEXUS account is required. Opening an external source connects to that website.
+
+The interface has been checked on physical Android 10 and Android 15 phones at 720 × 1600 and 1080 × 2400. Not every Android version or screen size has been verified. A catalogue match is not proof of playable video. Downloads is an empty state in this version; the app does not download movies. The submitted-site list includes sources without active connectors.
+
+## Build from source
+
+Install JDK 17, Android SDK Platform 36 and Build Tools 35.0.0. Configure ANDROID_HOME or set sdk.dir in your own local.properties.
+
+~~~sh
+git clone https://github.com/0xSnipFi/nexus-android.git
+cd nexus-android
+./gradlew :domain:test :app:assembleDebug :app:lintDebug
+~~~
+
+On Windows use gradlew.bat. The APK is written to app/build/outputs/apk/debug/app-debug.apk.
+
+| Source | Where to start |
 | --- | --- |
-| [app](app/) | Android entry point, navigation, WebView, clipboard and watchlist integration |
-| [Prototype.kt](app/src/main/java/app/nexus/discovery/Prototype.kt) | Connects the locally bundled interface to Android actions |
-| [prototype.html](app/src/main/assets/prototype.html) | Responsive screens, search controls and animated navigation |
-| [Catalogue.kt](app/src/main/java/app/nexus/discovery/Catalogue.kt) | Selects sources, filters and ranks hits, prepares source links |
-| [domain](domain/) | Android-independent search engine, matching and JVM tests |
-| [assets](app/src/main/assets/) | Offline catalogues, artwork, source review data and dataset notices |
-| [docs](docs/) | Historical implementation notes, verification records and source compatibility reviews |
-| [.github/workflows](.github/workflows/) | Build, JVM tests, lint and debug APK artifact |
+| Interface | [Responsive HTML and navigation](app/src/main/assets/prototype.html) · [Android integration](app/src/main/java/app/nexus/discovery/Prototype.kt) |
+| Discovery | [Catalogue selection and ranking](app/src/main/java/app/nexus/discovery/Catalogue.kt) · [Search domain and tests](domain/) |
+| Maintenance | [Build checks](.github/workflows/android.yml) · [Historical implementation records](docs/) |
 
-## Coverage and limits
+## Help improve NEXUS
 
-The app targets API 36 and installs from API 29. The responsive interface has been checked on Android 10 (720 × 1600) and Android 15 (1080 × 2400); other screen sizes and OS versions have not all been tested. The legacy Compose UI tests predate the current WebView search screen.
+[Report a bug](https://github.com/0xSnipFi/nexus-android/issues/new?template=bug.yml), [suggest a feature](https://github.com/0xSnipFi/nexus-android/issues/new?template=feature.yml), or [send a pull request](CONTRIBUTING.md). Reports that include the Android version, search query and expected result are particularly useful.
 
-Results combine bundled title metadata and supported online listings. A match does not establish streaming, language or download availability. The source review list is not a list of active connectors. Downloads currently has an empty state.
-
-Dataset notices are included for the [anime catalogue](app/src/main/assets/catalog-license.txt) and [movie catalogue](app/src/main/assets/movie-data-license.txt). Those notices do not grant rights to third-party cover art.
+The [anime dataset notice](app/src/main/assets/catalog-license.txt) and [movie dataset notice](app/src/main/assets/movie-data-license.txt) apply to their respective datasets; neither grants rights to third-party artwork.
