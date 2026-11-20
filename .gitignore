@@ -1,0 +1,18 @@
+.gradle/
+.kotlin/
+**/build/
+local.properties
+.idea/
+*.jks
+*.keystore
+
+# Device captures and workstation credentials stay local.
+docs/phone-audit/
+docs/device-layout/
+docs/prototype-phone.png
+.env
+.env.*
+*.p12
+*.pem
+*.apk
+*.aab
