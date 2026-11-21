@@ -12,10 +12,13 @@ public final class TitleMatcher {
 
     private static String key(String text) {
         return SEPARATOR.matcher(Normalizer.normalize(text, Normalizer.Form.NFKC)
-            .toLowerCase(Locale.ROOT).replace("&", " and ")).replaceAll(" ").trim();
+            .toLowerCase(Locale.ROOT).replace("pokémon", "pokemon").replace("&", " and ")).replaceAll(" ").trim();
     }
+
+    public boolean matchesIndex(String keys) { return !needle.isEmpty() && keys.contains(needle); }
 
     public boolean matches(String title) {
         return !needle.isEmpty() && key(title).contains(needle);
     }
 }
+

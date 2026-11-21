@@ -5,6 +5,10 @@ import java.util.concurrent.*;
 
 /** Runs source adapters independently. Only explicitly enabled sources receive a query. */
 public final class FederatedSearch {
+    public static final class SourceException extends java.io.IOException {
+        public SourceException(String message) { super(message); }
+    }
+
     public interface Adapter<T> {
         String name();
         boolean enabled();
@@ -22,7 +26,7 @@ public final class FederatedSearch {
         }
     }
 
-    private static final ExecutorService WORKERS = Executors.newFixedThreadPool(4, r -> {
+    private static final ExecutorService WORKERS = Executors.newFixedThreadPool(12, r -> {
         Thread thread = new Thread(r, "nexus-search");
         thread.setDaemon(true);
         return thread;
@@ -49,6 +53,7 @@ public final class FederatedSearch {
                 results.add(futures.get(i).get());
             } catch (ExecutionException | CancellationException e) {
                 String status = e instanceof CancellationException ? "Timed out" : "Search failed";
+                if (e.getCause() instanceof SourceException) status = e.getCause().getMessage();
                 results.add(new Outcome<>(names.get(i), Collections.emptyList(), status));
             }
         }

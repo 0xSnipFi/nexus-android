@@ -6,8 +6,8 @@ import java.io.ByteArrayOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
-internal fun posterData(address:String):String? {
-    if(!validSource(address) || java.net.URI(address).host!="s4.anilist.co") return null
+internal fun posterData(address:String,source:String=""):String? {
+    if(!validSource(address) || java.net.URI(address).host !in setOf("s4.anilist.co","images.justwatch.com","movies4u.vet","image.tmdb.org",android.net.Uri.parse(source).host)) return null
     val http=URL(address).openConnection() as HttpURLConnection
     return try {
         http.instanceFollowRedirects=false
@@ -32,3 +32,5 @@ internal fun posterData(address:String):String? {
         "data:"+opts.outMimeType+";base64,"+Base64.encodeToString(bytes,Base64.NO_WRAP)
     } catch(_:java.io.IOException){null} finally {http.disconnect()}
 }
+
+

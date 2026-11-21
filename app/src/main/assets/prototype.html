@@ -83,7 +83,7 @@ html,body{width:100%;height:100%;padding:0;margin:0;display:block}.app{position:
 .nav .bg{display:block;max-width:none}.tabs{z-index:1}.bub{z-index:2;pointer-events:none;margin-left:0;top:3%;width:clamp(44px,14vw,54px);height:auto;aspect-ratio:1}
 .bub .i{animation:none}.tab{padding-bottom:9px}.tab.on span{transform:none}
 @media(max-height:480px){.bub{width:38px;height:38px}.tab{padding-bottom:4px}}
-</style></head><body>
+.reduce-motion .rise,.reduce-motion .secure,.reduce-motion .bub .i{animation:none;opacity:1;transform:none}.reduce-motion *{transition:none!important}</style></head><body>
 <div class="app" id="app"><div class="scroll" id="view"></div>
 <div class="nav" id="nav"><svg class="bg" id="bg"><path id="pf" fill="#12070a" stroke="#ff2a3d" stroke-opacity=".55" stroke-width="1.5"/></svg>
 <div class="tabs" id="tabs"></div><div class="bub" id="bub"></div></div></div>
@@ -122,29 +122,42 @@ function render(){view.innerHTML=screens[{search:'search',home:'home',watch:'wat
 const act=(kind,value='')=>location.href='nexus://'+kind+'?value='+encodeURIComponent(value);
 const search=t=>{if(!t.trim())return;act('search',t.trim()+(st.f.Language?' '+FO.Language[st.f.Language]+' dub':'')+'\n'+({all:'All',anime:'Anime',movie:'Movies',series:'Series',cartoon:'Cartoons'}[st.cat])+'\n'+[FO.Type[st.f.Type],FO.Year[st.f.Year],st.sort].join('|'))};
 let showingHits=false;
+function visiblePosterIndices(){
+ const pending=[];
+ for(const [i,cover] of view.querySelectorAll(".hit .cover").entries()){
+  if(cover.dataset.requested || cover.querySelector("img"))continue;
+  const rect=cover.getBoundingClientRect();
+  if(rect.top>innerHeight*1.5)break;
+  if(rect.bottom<0)continue;
+  cover.dataset.requested="1";pending.push(i);
+  if(pending.length===4)break;
+ }
+ return pending;
+}
 function setPoster(index,source){
  const cover=view.querySelectorAll('.hit .cover')[index];
- if(cover && !cover.querySelector('img')){const img=new Image();img.alt='';img.src=source;cover.replaceChildren(img)}
+ if(cover && !cover.querySelector('img')){const img=new Image();img.alt='';img.src=source;cover.textContent='';cover.appendChild(img)}
 }
-function showHits(title,rows,status){
+function showHits(title,rows,status,pages={}){
  showingHits=true;
  const links=Array.from(new Set((rows||[]).flatMap(r=>r.links)));
  view.innerHTML=hdr()+'<div class="sb">'+ic('search')+'<input id="q" enterkeyhint="search" maxlength="200" value="'+esc(title)+'"></div><div class="sec">Search results</div>'+
- (rows===null?'<div class="empty">Searching catalogues…</div>':
- '<div class="panel">'+rows.length+' matches'+(links.length?' · <button class="pc" data-copy="all">Copy all source links ('+links.length+')</button>':'')+'<details><summary>Source status</summary>'+status.map(esc).join('<br>')+'</details></div>'+
- (!rows.length?'<div class="empty">No matching titles. Try a different title or category.</div>':'')+
+ (rows===null?'<div class="empty">Searching your connected sites…</div>':
+ '<div class="panel">'+rows.length+' matches'+(links.length?' · <button class="pc" data-copy="all">Copy all source links ('+links.length+')</button>':'')+'<details><summary>Source status</summary>'+status.map(s=>{const url=pages[s.split(' · ')[0]];return esc(s)+(url?' <button class="pc" data-site="'+esc(url)+'">Open site</button>':'')}).join('<br>')+'</details></div>'+
+ (!rows.length?'<div class="empty">'+(status.some(s=>s.includes(' · Searched · '))?'No verified match from your connected sites. See Source status for coverage.':'Could not search the connected sites. Check your connection and try again.')+'</div>':'')+
  rows.map((r,i)=>{
  const key=[r.title,...r.aliases.split('|')].find(t=>ART[t]);
  return '<article class="li hit"><div class="cover">'+(key?'<img alt="" src="'+ART[key]+'">':'No art')+'</div><div><h3>'+esc(r.title)+'</h3><small>'+esc([r.year,r.type].filter(Boolean).join(' · '))+' · Catalogue listing</small>'+
- (/dub|sub/i.test(title)?'<small>'+((r.year==='2024' && r.title==='Ore dake Level Up na Ken')?'Hindi dub documented by Crunchyroll; regional playback unverified.':'Requested track unverified.')+'</small>':'')+
- (r.links.length?'<button class="pc" data-save="'+i+'">Save to Watchlist</button>':'<button class="pc" data-url="https://tv.apple.com/search?term='+encodeURIComponent(r.title)+'">Search Apple TV</button>')+
+ (r.track?'<small>'+esc(r.track)+'</small>':'')+
+ '<button class="pc" data-save="'+i+'">Save to Watchlist</button>'+ 
  r.links.map(u=>'<div class="pop"><button class="pc" data-url="'+esc(u)+'">Open '+esc(new URL(u).hostname)+'</button><button class="pc" data-copy="'+esc(u)+'">Copy link</button></div>').join('')+'</div></article>'
  }).join(''));
- wire();view.scrollTop=0;
+ wire();view.scrollTop=0;view.querySelectorAll('[data-site]').forEach(b=>b.onclick=()=>act('open',b.dataset.site));
  view.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>act('copy',b.dataset.copy));
  view.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>act('save',b.dataset.save));
 }
 function wire(){
+ if(document.getElementById("getFile")){updateDownloads(downloadItems);document.getElementById("getFile").onclick=()=>act("download",document.getElementById("fileLink").value.trim())}
  if(document.getElementById("run"))document.getElementById("run").onclick=()=>search(document.getElementById("q").value);
  const q=$('#q');if(q){q.oninput=()=>{st.q=q.value};q.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();search(q.value)}};q.previousElementSibling.onclick=()=>search(q.value)}
  view.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{st.cat=b.dataset.cat;rr()});
@@ -158,7 +171,7 @@ function wire(){
  view.querySelectorAll('[data-url]').forEach(b=>b.onclick=()=>act('open',b.dataset.url));
  view.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>act('remove',b.dataset.remove));
  view.querySelectorAll('.tile').forEach((b,i)=>b.onclick=()=>{st.cat=['all','movie','anime','series','cartoon','all'][i];go(1)});
- const address=view.querySelector('.sb input:not(#q)');if(address){address.value='';address.onkeydown=e=>{if(e.key==='Enter'){if(address.value.startsWith('https://'))act('open',address.value);else search(address.value)}}}
+ const address=view.querySelector('.sb input:not(#q):not(#fileLink)');if(address){address.value='';address.onkeydown=e=>{if(e.key==='Enter'){if(address.value.startsWith('https://'))act('open',address.value);else search(address.value)}}}
 }
 function rr(p,pos){const s=view.scrollTop;view.querySelectorAll('.rise').forEach(e=>e.style.animation='none');view.innerHTML=screens.search();view.scrollTop=p??s;wire();const q=$('#q');if(pos!=null){q.focus();q.setSelectionRange(pos,pos)}}
 /* liquid nav */
@@ -190,7 +203,7 @@ function go(i,first){
  tabs.querySelectorAll('.tab').forEach((b,j)=>b.classList.toggle('on',j===i));
  bub.innerHTML=ic(T[i][0]);tx=(i+.5)*W/5;
  cancelAnimationFrame(raf);raf=0;
- if(first||reduced.matches){x=tx;draw()}else{from=x;start=performance.now();raf=requestAnimationFrame(loop)}
+ if(first||reduced.matches||document.documentElement.classList.contains("reduce-motion")){x=tx;draw()}else{from=x;start=performance.now();raf=requestAnimationFrame(loop)}
  render()
 }
 if(window.ResizeObserver)new ResizeObserver(size).observe(nav);
@@ -198,9 +211,16 @@ tabs.onclick=e=>{const b=e.target.closest('.tab');if(b&&(showingHits||+b.dataset
 st.rec=INITIAL_HISTORY;
 const saved=INITIAL_SAVED;
 screens.watch=()=>hdr()+'<div class="sec">Watchlist</div>'+ (Object.entries(saved).map(([u,t])=>'<div class="li"><button data-url="'+esc(u)+'">'+esc(t)+'</button><button data-remove="'+esc(u)+'">Remove</button></div>').join('')||'<div class="empty">Your saved titles appear here.</div>');
-screens.dl=()=>hdr()+'<div class="sec">Downloads</div><div class="empty">No downloads yet.</div>';
+let downloadItems=[];
+function downloadList(){return downloadItems.map(f=>'<article class="panel"><b>'+esc(f.title)+'</b><p>'+esc(f.state)+' · '+Number(f.bytes)+' bytes</p><div class="pop">'+(f.state==='Completed'?'<button class="pc" data-file="openFile">Open</button><button class="pc" data-file="shareFile">Share</button>':'')+'<button class="pc" data-file="removeFile">Remove</button></div></article>').join('')||'<div class="empty">No downloads yet.</div>'}
+function updateDownloads(files){downloadItems=files;const el=document.getElementById('transfers');if(!el)return;el.innerHTML=downloadList();el.querySelectorAll('article').forEach((e,i)=>e.querySelectorAll('[data-file]').forEach(b=>b.onclick=()=>act(b.dataset.file,String(files[i].id))))}
+screens.dl=()=>hdr()+'<div class="sec">Downloads</div><p>Paste a direct video, audio or PDF download link provided by the source.</p><div class="sb"><input id="fileLink" type="url" placeholder="HTTPS file link"><button id="getFile">Download</button></div><div id="transfers"></div>';
 addEventListener('resize',size);size();go(INITIAL_TAB,true);
 </script></body></html>
+
+
+
+
 
 
 

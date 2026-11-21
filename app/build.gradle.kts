@@ -1,3 +1,5 @@
+import java.text.Normalizer
+import java.util.Locale
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -10,8 +12,8 @@ android {
         applicationId = "app.nexus.discovery"
         minSdk = 29
         targetSdk = 36
-        versionCode = 6
-        versionName = "0.4.2"
+        versionCode = 12
+        versionName = "0.4.8"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions {
@@ -24,6 +26,7 @@ android {
 }
 dependencies {
     implementation(project(":domain"))
+    implementation("org.jsoup:jsoup:1.18.3")
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.material3)
@@ -35,6 +38,11 @@ dependencies {
     androidTestImplementation(libs.compose.test)
     androidTestImplementation(libs.test.runner)
 }
+
+
+
+
+
 
 
 

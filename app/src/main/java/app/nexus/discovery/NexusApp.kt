@@ -56,7 +56,7 @@ fun NexusApp() {
     val entry by navigation.currentBackStackEntryAsState()
     val route = entry?.destination?.route ?: "home"
     var protoTab by rememberSaveable { mutableIntStateOf(1) }
-    val prototype=route=="home" || route=="search" || route=="results"
+    val prototype=route=="home" || route=="search" || route=="results" || route=="downloads"
     var reduceMotion by rememberSaveable { mutableStateOf(false) }
     var query by rememberSaveable { mutableStateOf("") }
     var year by rememberSaveable { mutableStateOf("") }
@@ -92,12 +92,12 @@ fun NexusApp() {
                             Prototype(protoTab,{protoTab=it},{ title ->
                                 submitted = title
                                 navigation.navigate("results")
-                            },{sourceUrl=it;navigation.navigate("browser")},{navigation.navigate("settings")})
+                            },{sourceUrl=it;navigation.navigate("browser")},{navigation.navigate("settings")},reduceMotion=reduceMotion)
                         }
                     }
-                    composable("results") { Prototype(1,{ protoTab=it;navigation.popBackStack() },{submitted=it},{sourceUrl=it;navigation.navigate("browser")},{navigation.navigate("settings")},submitted) }
+                    composable("results") { Prototype(1,{ protoTab=it;navigation.popBackStack() },{submitted=it},{sourceUrl=it;navigation.navigate("browser")},{navigation.navigate("settings")},submitted,reduceMotion) }
                     composable("watchlist") { SavedSources { sourceUrl=it; navigation.navigate("browser") } }
-                    composable("downloads") { EmptyPage("Downloads", "No authorized downloads yet. Download controls will appear only after permission and transport checks are implemented.", Icons.Default.ArrowDropDown) }
+                    composable("downloads") { Prototype(3,{protoTab=it;navigation.navigate("home"){popUpTo("home"){inclusive=true}}},{submitted=it;navigation.navigate("results")},{sourceUrl=it;navigation.navigate("browser")},{navigation.navigate("settings")},reduceMotion=reduceMotion) }
                     composable("browser") { if(sourceUrl.isEmpty()) Text("Open a source from search results.") else CatalogueBrowser(sourceUrl) { navigation.popBackStack() } }
                     composable("history") { EmptyPage("Search history", "This preview does not persist queries. Local history and deletion controls are planned for the data phase.", Icons.Default.Search) }
                     composable("source") { EmptyPage("Source details", "Sample metadata only. No source URL, viewing availability, audio language or security check is associated with this item.", Icons.Default.Info) }
@@ -180,6 +180,8 @@ fun NexusApp() {
         }
     }
 }
+
+
 
 
 

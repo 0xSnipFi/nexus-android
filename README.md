@@ -15,11 +15,9 @@
 
 These are captures from the Android app. Tap a screenshot to inspect it. Result counts and source availability may change.
 
-## Try these searches
+## Search sources in the development build
 
-- **Movies → Dune Part Two.** The tested search found the 2024 film and its Warner Bros. source page. Use **Copy link** for one URL or **Copy all source links** for a deduplicated list.
-- **Cartoons → Bluey.** Save the 2018 title to **Watchlist**, open the Watchlist tab, then tap the title to visit the original site. This flow was verified on a physical phone.
-- **Anime → Solo Leveling Hindi dub.** The tested search returned seven catalogue matches. A language note identifies a documented dub where available; it does not verify audio playback in your region.
+Search returns only title pages from connected sites in the submitted-source registry. Try **Anime → Naruto**. Source status shows matches after filters, network failures, and links to interactive search pages. If no connected source returns a match, there is no external catalogue fallback. The screenshots above show earlier builds.
 
 ## Install
 
@@ -29,15 +27,15 @@ Download the APK from the link above and open it on Android 10 or newer. If Andr
 adb install -r NEXUS-debug.apk
 ~~~
 
-**Current build: 0.4.2 (6), debug-signed.** This is a development APK, not a Play Store release. If Android reports an incompatible signature, an existing installation was signed with another key. Uninstalling removes local watchlist and history, so do not uninstall without saving what you need.
+**Development build: 0.4.8 (12), debug-signed.** The release link above points to the latest published APK, which may be older. This is a development APK, not a Play Store release. If Android reports an incompatible signature, an existing installation was signed with another key. Uninstalling removes local watchlist and history, so do not uninstall without saving what you need.
 
 **বাংলায় শুরু করুন:** APK ইনস্টল করে Search-এ নাম লিখুন। ফলের পাশে **Copy link** চাপলে মূল পেজের ঠিকানা কপি হবে। পরে দেখতে **Save to Watchlist** চাপুন।
 
 ## What works today
 
-The app searches local title catalogues and supported online listings, groups source links by result, displays available artwork and stores recent searches and saved titles on the phone. No NEXUS account is required. Opening an external source connects to that website.
+The app searches supported listings from the submitted sites, groups source links by result, displays available artwork and stores recent searches and saved titles on the phone. No NEXUS account is required. Opening an external source connects to that website.
 
-The interface has been checked on physical Android 10 and Android 15 phones at 720 × 1600 and 1080 × 2400. Not every Android version or screen size has been verified. A catalogue match is not proof of playable video. Downloads is an empty state in this version; the app does not download movies. The submitted-site list includes sources without active connectors.
+The interface has been checked on physical Android 10 and Android 15 phones at 720 × 1600 and 1080 × 2400. Not every Android version or screen size has been verified. A catalogue match is not proof of playable video. Downloads accepts direct HTTPS video, audio and PDF file links, including supported downloads offered by an original website. Confirm the file and host before saving it. Android manages the transfer; open, share, cancel or remove it from the Downloads tab. Streaming manifests, protected players, signed-in-only files and stream extraction are not supported. NEXUS checks same-host search forms from the submitted list. Sites that require JavaScript or human verification can be opened from Source status. The browser blocks automatic pop-ups and filters requests using the bundled [AdAway hosts list](https://github.com/AdAway/adaway.github.io/blob/master/hosts.txt), distributed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Tap Shield on or Shield off to change filtering for the displayed site. A user-selected link to another host prompts before opening.
 
 ## Build from source
 
@@ -62,3 +60,5 @@ On Windows use gradlew.bat. The APK is written to app/build/outputs/apk/debug/ap
 [Report a bug](https://github.com/0xSnipFi/nexus-android/issues/new?template=bug.yml), [suggest a feature](https://github.com/0xSnipFi/nexus-android/issues/new?template=feature.yml), or [send a pull request](CONTRIBUTING.md). Reports that include the Android version, search query and expected result are particularly useful.
 
 The [anime dataset notice](app/src/main/assets/catalog-license.txt) and [movie dataset notice](app/src/main/assets/movie-data-license.txt) apply to their respective datasets; neither grants rights to third-party artwork.
+
+
